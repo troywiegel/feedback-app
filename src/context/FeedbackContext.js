@@ -4,7 +4,6 @@ const FeedbackContext = createContext();
 
 export const FeedbackProvider = ({ children }) => {
   const [feedback, setFeedback] = useState([]);
-
   const [feedbackEdit, setFeedbackEdit] = useState({
     item: {},
     edit: false,
@@ -16,7 +15,7 @@ export const FeedbackProvider = ({ children }) => {
 
   // Fetch feedback
   const fetchFeedback = async () => {
-    const response = await fetch("http://localhost:3002/feedback?_sort=id&_order=desc");
+    const response = await fetch(`/feedback?_sort=id&_order=desc`);
     const data = await response.json();
 
     setFeedback(data);
@@ -24,7 +23,7 @@ export const FeedbackProvider = ({ children }) => {
 
   // Add feedback
   const addFeedback = async (newFeedback) => {
-    const response = await fetch("http://localhost:3002/feedback", {
+    const response = await fetch("/feedback", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,14 +39,15 @@ export const FeedbackProvider = ({ children }) => {
   // Delete feedback
   const deleteFeedback = async (id) => {
     if (window.confirm("Are you sure you want to delete?")) {
-      await fetch(`http://localhost:3002/feedback/${id}`, { method: "DELETE" });
+      await fetch(`/feedback/${id}`, { method: "DELETE" });
+
       setFeedback(feedback.filter((item) => item.id !== id));
     }
   };
 
   // Update feedback item
   const updateFeedback = async (id, updItem) => {
-    const response = await fetch(`http://localhost:3002/feedback/${id}`, {
+    const response = await fetch(`/feedback/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -57,9 +57,12 @@ export const FeedbackProvider = ({ children }) => {
 
     const data = await response.json();
 
-    setFeedback(
-      feedback.map((item) => (item.id === id ? { ...item, ...data } : item))
-    );
+    setFeedback(feedback.map((item) => (item.id === id ? data : item)));
+
+    setFeedbackEdit({
+      item: {},
+      edit: false,
+    });
   };
 
   // Set item to be updated
@@ -75,8 +78,8 @@ export const FeedbackProvider = ({ children }) => {
       value={{
         feedback,
         feedbackEdit,
-        addFeedback,
         deleteFeedback,
+        addFeedback,
         editFeedback,
         updateFeedback,
       }}
